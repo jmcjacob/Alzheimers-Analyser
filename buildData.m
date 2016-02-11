@@ -22,20 +22,27 @@ function [ outSets ] = buildData( inpu )
     bw = imdilate(bw,element);
     bw = imerode(bw,element);
     
-    [labels, count] = bwlabel(bw,8);
+    labels = bwlabel(bw,8);
+    boxs = regionprops(labels, 'BoundingBox');
     
-    for l = 1:count
-        feature = false(n,m);
-        for i = 1:n
-            for j = 1:m
-                if labels(i,j) == l
-                    feature(i,j) = 1;
-                end
-            end
-        end
+    for i = 1:n
+        
+        bb_i=ceil(boxs(i).BoundingBox);
+        idx_x=[bb_i(1)-2 bb_i(1)+bb_i(3)+2];
+        idx_y=[bb_i(2)-2 bb_i(2)+bb_i(4)+2];
+        if idx_x(1)<1, idx_x(1)=1; end
+        if idx_y(1)<1, idx_y(1)=1; end
+        if idx_x(2)>m, idx_x(2)=m; end
+        if idx_y(2)>n, idx_y(2)=n; end
+        
+        R = image(idx_y(1):idx_y(2),idx_x(1):idx_x(2),1);
+        G = image(idx_y(1):idx_y(2),idx_x(1):idx_x(2),2);
+        B = image(idx_y(1):idx_y(2),idx_x(1):idx_x(2),3);
+        feature = cat(3, R, G, B);
+        
         imshow(feature);
         answer = input('input', 's');
-        fileName = [inpu(1:end-4),'_' , num2str(l),'.png'];
+        fileName = [inpu(1:end-4),'_' , num2str(i),'.png'];
         if (answer == '1')
             imwrite(feature, ['features/tangles/',fileName]);
         elseif (answer == '2')
