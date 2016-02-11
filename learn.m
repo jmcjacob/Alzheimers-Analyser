@@ -1,6 +1,6 @@
 function [ categoryClassifier ] = learn( inSet )
 
     bag = bagOfFeatures(inSet);
-    categoryClassifier = trainImageCategoryClassifier(trainingSets, bag);
+    categoryClassifier = trainImageCategoryClassifier(inSet, bag);
     
 end

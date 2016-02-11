@@ -22,12 +22,12 @@ function [  ] = Predict( inputImage, class )
     bw = imdilate(bw,element);
     bw = imerode(bw,element);
     
-    labels = bwlabel(bw,8);
+    [labels, count] = bwlabel(bw,8);
     boxs = regionprops(labels, 'BoundingBox');
     tCenters = cell(1,1);
     pCenters = cell(1,1);
     
-    for i = 1:n
+    for i = 1:count
         
         bb_i=ceil(boxs(i).BoundingBox);
         idx_x=[bb_i(1)-2 bb_i(1)+bb_i(3)+2];
@@ -43,31 +43,36 @@ function [  ] = Predict( inputImage, class )
         feature = cat(3, R, G, B);
         
         [label, score] = predict(class, feature);
-        if strcmp(class.label, 'tangle')
+        if strcmp(class.Labels(label), 'tangle')
             im=labels==i;
             point = regionprops(im, 'centroid');
             center = cat(1, point.Centroid); 
             tCenters = [tCenters, center];
-        elseif strcmp(class.label, 'plaque')
+        elseif strcmp(class.Labels(label), 'plaque')
             im=labels==i;
             point = regionprops(im, 'centroid');
             center = cat(1, point.Centroid);
             pCenters = [pCenters, center];
         end
     end
-
+    
+    ts = size(tCenters);
+    ps = size(pCenters);
     imshow(image);
     hold on;
     
-    for i = 1:size(tCenters)
-        center = tCenters(i);
-        plot(center(:,1), center(:,2), 'g+');
+    if (ts(2) > 1)
+        for i = 1:size(tCenters)
+            center = tCenters{i+1};
+            plot(round(center(:,1)), round(center(:,2)), 'g+');
+        end
     end
-    for i = 1:size(pCenters)
-        center = pCenters(i);
-        plot(center(:,1), center(:,2), 'b+');
+    if (ps(2) > 1)
+        for i = 1:size(pCenters)
+            center = pCenters{i+1};
+            plot(round(center(:,1)), round(center(:,2)), 'b+');
+        end
     end
-    
     hold off;
     
 end
