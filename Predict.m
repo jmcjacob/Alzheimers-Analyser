@@ -1,5 +1,5 @@
-function [ outSets ] = buildData( inputImage )
-    
+function [  ] = Predict( inputImage, class )
+
     image = imread(inputImage);
     red = image(:,:,1);
     green = image(:,:,2);
@@ -24,6 +24,8 @@ function [ outSets ] = buildData( inputImage )
     
     labels = bwlabel(bw,8);
     boxs = regionprops(labels, 'BoundingBox');
+    tCenters = cell(1,1);
+    pCenters = cell(1,1);
     
     for i = 1:n
         
@@ -40,26 +42,33 @@ function [ outSets ] = buildData( inputImage )
         B = image(idx_y(1):idx_y(2),idx_x(1):idx_x(2),3);
         feature = cat(3, R, G, B);
         
-        imshow(feature);
-        answer = input('input', 's');
-        fileName = [inpu(1:end-4),'_' , num2str(i),'.png'];
-        if (answer == '1')
-            imwrite(feature, ['features/tangle/',fileName]);
-        elseif (answer == '2')
-            imwrite(feature, ['features/plaque',fileName]);
-        else 
-            imwrite(feature, ['features/miss',fileName]);
+        [label, score] = predict(class, feature);
+        if strcmp(class.label, 'tangle')
+            im=labels==i;
+            point = regionprops(im, 'centroid');
+            center = cat(1, point.Centroid); 
+            tCenters = [tCenters, center];
+        elseif strcmp(class.label, 'plaque')
+            im=labels==i;
+            point = regionprops(im, 'centroid');
+            center = cat(1, point.Centroid);
+            pCenters = [pCenters, center];
         end
     end
-    
-    outSets = [ imageSet(fullfile('features', 'tangle')), ...
-                imageSet(fullfile('features', 'plaque')), ...
-                imageSet(fullfile('features', 'miss')) ];
 
-    minSetCount = min([outSets.Count]);        
-    if (minSetCount > 0)
-        outSets = partition(outSets, minSetCount, 'randomize');
+    imshow(image);
+    hold on;
+    
+    for i = 1:size(tCenters)
+        center = tCenters(i);
+        plot(center(:,1), center(:,2), 'g+');
     end
+    for i = 1:size(pCenters)
+        center = pCenters(i);
+        plot(center(:,1), center(:,2), 'b+');
+    end
+    
+    hold off;
     
 end
 
