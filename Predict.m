@@ -38,8 +38,30 @@ function [  ] = Predict( inputImage, class )
         if idx_y(2)>n, idx_y(2)=n; end
         
         R = image(idx_y(1):idx_y(2),idx_x(1):idx_x(2),1);
+        [n,m] = size(R);
+        for j = 1:n
+            for l = 1:m
+                if ~(R(j,l) >= 40 && R(j,l) <= 100)
+                    R(j,l) = 1;
+                end
+            end
+        end
         G = image(idx_y(1):idx_y(2),idx_x(1):idx_x(2),2);
+        for j = 1:n
+            for l = 1:m
+                if ~(G(j,l) >= 10 && G(j,l) <= 80)
+                    G(j,l) = 1;
+                end
+            end
+        end
         B = image(idx_y(1):idx_y(2),idx_x(1):idx_x(2),3);
+        for j = 1:n
+            for l = 1:m
+                if ~(B(j,l) >= 10 && B(j,l) <= 80)
+                    B(j,l) = 1;
+                end
+            end
+        end
         feature = cat(3, R, G, B);
         
         [label, score] = predict(class, feature);
