@@ -27,9 +27,9 @@ function [  ] = Predict( inputImage, class )
     tCenters = cell(1,1);
     pCenters = cell(1,1);
     
-    for i = 1:count
+    for k = 1:count
         
-        bb_i=ceil(boxs(i).BoundingBox);
+        bb_i=ceil(boxs(k).BoundingBox);
         idx_x=[bb_i(1)-2 bb_i(1)+bb_i(3)+2];
         idx_y=[bb_i(2)-2 bb_i(2)+bb_i(4)+2];
         if idx_x(1)<1, idx_x(1)=1; end
@@ -38,27 +38,15 @@ function [  ] = Predict( inputImage, class )
         if idx_y(2)>n, idx_y(2)=n; end
         
         R = image(idx_y(1):idx_y(2),idx_x(1):idx_x(2),1);
-        [n,m] = size(R);
-        for j = 1:n
-            for l = 1:m
-                if ~(R(j,l) >= 40 && R(j,l) <= 100)
-                    R(j,l) = 1;
-                end
-            end
-        end
         G = image(idx_y(1):idx_y(2),idx_x(1):idx_x(2),2);
-        for j = 1:n
-            for l = 1:m
-                if ~(G(j,l) >= 10 && G(j,l) <= 80)
-                    G(j,l) = 1;
-                end
-            end
-        end
         B = image(idx_y(1):idx_y(2),idx_x(1):idx_x(2),3);
-        for j = 1:n
-            for l = 1:m
-                if ~(B(j,l) >= 10 && B(j,l) <= 80)
-                    B(j,l) = 1;
+        [fn,fm] = size(R);
+        for i = 1:fn
+            for j = 1:fm
+                if ~(B(i,j) >= 10 && B(i,j) <= 80 && G(i,j) >= 10 && G(i,j) <= 80 && R(i,j) >= 40 && R(i,j) <= 110)
+                    R(i,j) = 0;
+                    G(i,j) = 0;
+                    B(i,j) = 0;
                 end
             end
         end
@@ -66,12 +54,12 @@ function [  ] = Predict( inputImage, class )
         
         [label, score] = predict(class, feature);
         if strcmp(class.Labels(label), 'tangle')
-            im=labels==i;
+            im=labels==k;
             point = regionprops(im, 'centroid');
             center = cat(1, point.Centroid); 
             tCenters = [tCenters, center];
         elseif strcmp(class.Labels(label), 'plaque')
-            im=labels==i;
+            im=labels==k;
             point = regionprops(im, 'centroid');
             center = cat(1, point.Centroid);
             pCenters = [pCenters, center];
