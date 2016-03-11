@@ -23,6 +23,8 @@ function [ outSets ] = buildData( inputImage )
     [labels, count] = bwlabel(bw,8);
     boxs = regionprops(labels, 'BoundingBox');
     
+    disp (count);
+    
     for k = 1:count
         
         bb_i=ceil(boxs(k).BoundingBox);
@@ -49,8 +51,10 @@ function [ outSets ] = buildData( inputImage )
         end
         feature = cat(3, R, G, B);
         
-        if (((fn*fm)/3) > 350)
+        if (((fn*fm)) > 350)
             imshow(imresize(feature,2));
+            feature = imresize(feature, [100 100]);
+            feature = im2single(feature);
             answer = input('input', 's');
             fileName = [inputImage(1:end-4),'_' , num2str(k),'.png'];
             if (answer == '1')

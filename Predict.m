@@ -51,7 +51,7 @@ function [  ] = Predict( inputImage, class )
             end
         end
         feature = cat(3, R, G, B);
-        
+        feature = imresize(feature, [100 100]);
         [label, score] = predict(class, feature);
         if strcmp(class.Labels(label), 'tangle')
             im=labels==k;
