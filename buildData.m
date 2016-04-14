@@ -33,6 +33,13 @@ function [ outSets ] = buildData( inputImage )
 %% Displays instructions for building image set.
     disp('Enter 1 for tangle, 2 for plaque and other for noise');
     
+%% Makes Directories for features.
+    warning off MATLAB:MKDIR:DirectoryExists                                % Turns off unnessary warnings.
+    s = mkdir('features');                                                  % Creates folders for use in the system.
+    s = mkdir('features', 'tangle');
+    s = mkdir('features', 'plaque');
+    s = mkdir('features', 'noise');
+    
 %% Cycles through each lable.
     for k = 1:count
         %% Returns the coodinates of the boudning boxes.
